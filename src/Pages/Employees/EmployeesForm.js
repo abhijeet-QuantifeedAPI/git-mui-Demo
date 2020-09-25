@@ -34,13 +34,33 @@ export default function EmployeesForm() {
  
     const {values,
         setValues,
+        errors,
+        setErrors,
         handleInputChange
        } = useForm(initialFieldValues);   
     
+    const validate = () => {
+        let temp ={}    
+        temp.fullName = values.fullName ?  "" : "This field is required."
+        temp.email = (/$|.+@.+..+/).test(values.email) ?  "" : "Email is not valid."
+        temp.mobile = values.mobile.length > 9 ?  "" : "Minimum 10 numbers required."
+        temp.departmentId = values.departmentId.length != 0 ?  "" : "This field is required."
+
+        setErrors({
+            ...temp
+        })
+
+         return Object.values(temp).every(x => x == "")
+       }
+
+       const handleSubmit = e => {
+           e.preventDefault()
+           if (validate())
+        window.alert('testing')
+       }
     
-    return ( 
-        
-        <Form>
+    return (         
+        <Form onSubmit={handleSubmit}>
           <Grid  container >
               <Grid item xs={6}>
               <Input name="fullName" label="Full Name" value={values.fullName} onChange={handleInputChange} />

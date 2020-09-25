@@ -10,7 +10,9 @@ export default function Input(props) {
                label={label}
                name={name}
                value={value}  
-               onChange={onChange}      
+               onChange={onChange}   
+               error
+               helperText= "Some validation error." 
               />
     )
 }
