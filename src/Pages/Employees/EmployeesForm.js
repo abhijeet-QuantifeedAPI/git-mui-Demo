@@ -30,42 +30,56 @@ const initialFieldValues = {
     isPermanent: false,
 }
 
+
 export default function EmployeesForm() { 
+
+    const validate = (fiedldValues = values) => {
+        let temp ={...errors}    
+
+        if('fullName' in fiedldValues)
+              temp.fullName = fiedldValues.fullName ?  "" : "This full name  field is required."
+        if('email' in fiedldValues)      
+              temp.email = (/$^|.+@.+..+/).test(fiedldValues.email) ?  "" : "Email is not valid."
+        if('mobile' in fiedldValues)
+              temp.mobile = fiedldValues.mobile.length > 9 ?  "" : "Minimum 10 numbers required."
+        if('departmentId' in fiedldValues)
+        temp.departmentId = fiedldValues.departmentId.length != 0 ?  "" : "This field is required."
+
+        setErrors({
+            ...temp
+        })
+         
+        if(fiedldValues == values)
+         return Object.values(temp).every(x => x == "")
+       }
  
     const {values,
         setValues,
         errors,
         setErrors,
-        handleInputChange
-       } = useForm(initialFieldValues);   
+        handleInputChange,
+        resetForm
+       } = useForm(initialFieldValues, true , validate);   
     
-    const validate = () => {
-        let temp ={}    
-        temp.fullName = values.fullName ?  "" : "This field is required."
-        temp.email = (/$|.+@.+..+/).test(values.email) ?  "" : "Email is not valid."
-        temp.mobile = values.mobile.length > 9 ?  "" : "Minimum 10 numbers required."
-        temp.departmentId = values.departmentId.length != 0 ?  "" : "This field is required."
-
-        setErrors({
-            ...temp
-        })
-
-         return Object.values(temp).every(x => x == "")
-       }
+    
 
        const handleSubmit = e => {
            e.preventDefault()
            if (validate())
-        window.alert('testing')
+           {
+             employeeService.insertEmployee(values)
+             resetForm();
+           }
+             
        }
     
     return (         
         <Form onSubmit={handleSubmit}>
           <Grid  container >
               <Grid item xs={6}>
-              <Input name="fullName" label="Full Name" value={values.fullName} onChange={handleInputChange} />
-              <Input name="email"    label="Email"     value={values.email}    onChange={handleInputChange} />
-              <Input name="mobile"   label="Mobile"    value={values.mobile}   onChange={handleInputChange} />
+              <Input name="fullName" label="Full Name" value={values.fullName} onChange={handleInputChange} error={errors.fullName}/>
+              <Input name="email"    label="Email"     value={values.email}    onChange={handleInputChange} error={errors.email}/>
+              <Input name="mobile"   label="Mobile"    value={values.mobile}   onChange={handleInputChange} error={errors.mobile}/>
               <Input name="city"     label="City"      value={values.city}     onChange={handleInputChange} />
               </Grid>            
               <Grid item xs={6}>
@@ -81,7 +95,8 @@ export default function EmployeesForm() {
                          label="Department"
                          value={values.departmentId}
                          onChange={handleInputChange}
-                         options={employeeService.getDepartmentCollection()}                         
+                         options={employeeService.getDepartmentCollection()}  
+                         error={errors.departmentId}                       
                          />
                   <DatePicker 
                               name ="hireDate"
@@ -97,7 +112,7 @@ export default function EmployeesForm() {
                   />
                   <div>
                       <Button text="Submit" type="submit"  />
-                      <Button text="Reset"  color="default"  />
+                      <Button text="Reset"  color="default" onClick={resetForm}  />
                   </div>
               </Grid>
           </Grid>   
